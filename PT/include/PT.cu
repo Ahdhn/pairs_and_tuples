@@ -3,6 +3,23 @@
 #include <stdio.h>
 #include "gtest/gtest.h"
 
+template <typename T>
+class TestTupleMember
+{
+
+   public:
+    __host__ __device__ TestTupleMember(T _data)
+    {
+        data = _data;
+    }
+
+    __host__ __device__ ~TestTupleMember()
+    {
+    }
+
+    T data;
+};
+
 template <typename... PartitionsT>
 __device__ inline static void pair_example(
     std::pair<PartitionsT, int>... partitions)
@@ -33,9 +50,14 @@ __global__ void exec_kernel()
     int i = 1;
     int j = 2;
 
-    pair_example(std::make_pair(i, j), std::make_pair(j, i));
+    TestTupleMember<int> t(5);
 
-    tuple_example(std::make_tuple(i, j), std::make_tuple(j, i));
+    //pair_example(std::make_pair(i, j), std::make_pair(j, i));
+
+    // tuple_example(std::make_tuple(i, j), std::make_tuple(j, i));
+    
+    pair_example(std::make_pair(t, j), std::make_pair(t, i));
+    tuple_example(std::make_tuple(t, j), std::make_tuple(t, i));
 }
 
 TEST(Test, exe)
